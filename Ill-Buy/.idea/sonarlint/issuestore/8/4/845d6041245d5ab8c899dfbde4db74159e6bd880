@@ -1,0 +1,28 @@
+
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¤Ñ†ªÿÿÿÿÿ
+g	java:S116	"RRename this field "SkuCode" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ïŠ–é
+A
+java:S1068"&Remove this unused "id" private field.(â¼°Ñûÿÿÿÿ
+G
+java:S1068",Remove this unused "quantity" private field.(÷ç¥‚ùÿÿÿÿ
+A
+java:S1068	"+Remove this unused "SkuCode" private field.(ïŠ–é
+E
+java:S1068
+"/Remove this unused "productName" private field.(…œ£ß
+J
+java:S1068"/Remove this unused "description" private field.(ÇÓæâıÿÿÿÿ
+G
+java:S1068",Remove this unused "category" private field.(‘Ñ¤’üÿÿÿÿ
+?
+java:S1068")Remove this unused "price" private field.(ïµüí
+G
+java:S1068"1Remove this unused "discountPrice" private field.(ùòâô
+F
+java:S1068"0Remove this unused "creationDate" private field.(ĞÉ¸
+H
+java:S1068"2Remove this unused "sellableOnline" private field.(©…ø®
+J
+java:S1068"/Remove this unused "otherColors" private field.(ú¦İ½ÿÿÿÿÿ
+H
+java:S1068"2Remove this unused "productPicture" private field.(Üöı·

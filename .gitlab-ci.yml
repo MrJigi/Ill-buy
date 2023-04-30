@@ -1,0 +1,71 @@
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - QC
+
+variables:
+  JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+#build-job:       # This job runs in the build stage, which runs first.
+#  stage: build
+#  script:
+#    - echo "Compiling the code..."
+#    - echo "Compile complete."
+
+# Tests for discovery service
+build-discovery-service: # This job runs in the build stage,which runs first.
+  stage: build
+  script:
+    - echo "Running Build"
+    - echo $JAVA_HOME
+    - cd Ill-Buy
+    - cd user-service
+    - chmod +x gradlew
+    - ./gradlew clean build
+    - echo "Build complete."
+  artifacts:
+    paths:
+    - /home/gitlab-runner/
+
+unit-test-job:   # This job runs in the test stage.
+  stage: test    # It only starts when the job in the build stage completes successfully.
+  script:
+    - echo "Running unit tests... This will take about 60 seconds."
+    - cd Ill-Buy
+    - cd user-service
+    - chmod +x gradlew
+    - ./gradlew test
+    - echo "Code coverage test complete"
+
+#lint-test-job:   # This job also runs in the test stage.
+#  stage: test    # It can run at the same time as unit-test-job (in parallel).
+#  script:
+#    - echo "Linting code... This will take about 10 seconds."
+#    - sleep 10
+#    - echo "No lint issues found."
+
+unit-test-discovery-service: # This job runs in the test stage.
+  stage: test # It only starts when the job in the build stage completes successfully.
+  script:
+    - echo "Running unit tests..."
+    - cd Ill-Buy
+    - cd user-service
+    - chmod +x gradlew
+    - ./gradlew test
+    - echo "Tests complete."
+
+sonarqube-check-discovery-service:
+  stage: QC
+  script:
+    - cd Ill-Buy
+    - cd user-service
+    - chmod +x gradlew
+    - ./gradlew sonarqube \-Dsonar.host.url=$SONAR_URL \-Dsonar.login=$SONAR_LOGIN \-Dsonar.password=$SONAR_PASSWORD
+  only:
+    - dev
+
+#deploy-job:      # This job runs in the deploy stage.
+#  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+#  environment: production
+#  script:
+#    - echo "Deploying application..."
+#    - echo "Application successfully deployed."

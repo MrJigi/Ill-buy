@@ -1,0 +1,189 @@
+version: "3.8"
+services:
+#  Testing environment
+  sonarqube:
+    image: sonarqube:9-community
+    depends_on:
+      - sonarqube-db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - /tmp/opt/sonarqube/conf:/opt/sonarqube/conf \
+      - /tmp/opt/sonarqube/logs:/opt/sonarqube/data \
+      - /tmp/opt/sonarqube/data:/opt/sonarqube/logs \
+      - /tmp/opt/sonarqube/extensions:/opt/sonarqube/extensions \
+    ports:
+      - "9000:9000"
+  sonarqube-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - /custom/mount:/var/lib/postgresql/data
+#  App and db
+  db-product:
+    image: postgres:latest
+    container_name: db-product
+    ports:
+      - 5433:5433
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: illbuy_product
+    volumes:
+      - postgresql:/var/lib/postgresql_product
+      - postgresql_data:/var/lib/postgresql_product/data
+
+  db-user:
+    image: postgres:latest
+    container_name: db-user
+    ports:
+      - 5435:5435
+    restart: always
+    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: admin
+#      POSTGRES_DB: illbuy_user
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=illbuy_user
+#    volumes:
+#      - postgresql:/var/lib/postgresql_illbuy_user_service
+#      - postgresql_data:/var/lib/postgresql_illbuy_user_service/data
+    volumes:
+      - postgresql:/var/lib/postgresql_user
+      - postgresql_data:/var/lib/postgresql_user/data
+
+#  db_user_service:
+#    image: postgres:latest
+#    container_name: db_user_service
+#    ports:
+#      - 5436:5436
+#    restart: always
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=admin
+#      - POSTGRES_DB=illbuy_user_service
+#    volumes:
+#      - postgresql:/var/lib/postgresql_illbuy_user_service1
+#      - postgresql_data:/var/lib/postgresql_illbuy_user_service1/data
+
+  db-order:
+    image: postgres:latest
+    container_name: db-order
+    ports:
+      - 5434:5434
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: illbuy_order
+    volumes:
+      - postgresql:/var/lib/postgresql_order
+      - postgresql_data:/var/lib/postgresql_order/data
+
+  user-service:
+    build: user-service
+    image: user-service
+    container_name: user-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - db-user
+
+  orders-service:
+    build: orders-service
+    image: order-service
+    container_name: orders-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - db-order
+
+
+  product-service:
+    build: product-service
+    image: product-service
+    container_name: product-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - db-product
+
+
+volumes:
+#  #  sonarqube_data:
+#  #  sonarqube_extensions:
+#  #  sonarqube_logs:
+  postgresql:
+  postgresql_data:
+
+
+  #    environment:
+  ##      - SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/illbuy_user
+  ##      - SPRING_PROFILES_ACTIVE=dev
+  #      - DATASOURCE_URL = jdbc:postgresql://localhost:5432
+  ##      - DATABASE_HOST=db
+  #      - DATABASE_PORT=5432
+  ##      - DATABASE_NAME=allbuy_user
+  #      - DATABASE_USERNAME=postgres
+  #      - DATABASE_PASSWORD=admin
+
+
+  #    volumes:
+  #      - db:var/lib/postgresql/data
+  #  mongodb:
+  #    image: mongo
+  #    container_name: mongodb
+  #    ports:
+  #      - 27017:27017
+  #    volumes:
+  #      - data:/data
+  #    environment:
+  #      - MONGO_INITDB_ROOT_USERNAME=rootuser
+  #      - MONGO_INITDB_ROOT_PASSWORD=rootpass
+  #  mongo-express:
+  #    image: mongo-express
+  #    container_name: mongo-express
+  #    restart: always
+  #    ports:
+  #      - 8081:8081
+  #    environment:
+  #      - ME_CONFIG_MONGODB-ADMINUSERNAME=rootuser
+  #      - ME_CONFIG-MONGODB_ADMINPASSWORD=rootpass
+  #      - ME_CONFIG_MONGODB_SERVER=mongodb
+
+#  eureka-server:
+#    image: dockerspinggcp-eurekaserver:0.0.1-SNAPSHOT
+#    build: eurekaserver/
+#    ports:
+#      - 8761:8761
+#  eureka-client:
+#    image: dockerspringgcp-eaurekaclient:0.0.1-SNAPSHOT
+#    build: eurekaclient/
+#    depends_on:
+#      - eureka-server
+#      - user-server
+#    environment:
+#      SPRING_APPLICATION_JSON: '{"eureka":{"client":{"serviceUrl":{"defaultZone":"http://eureka-server:8761/eureka"}}}}'
+#    ports:
+#      - 8081:8081
+
+
+#volumes:
+#  data: {}
+#  db:
+#    driver: local
+#
+#networks:
+#  default:
+#    name: postgres_network
